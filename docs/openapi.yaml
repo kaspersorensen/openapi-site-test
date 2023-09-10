@@ -1,0 +1,2074 @@
+openapi: 3.0.3
+info:
+  title: Kasper's copy of Confidentify API
+  description: >
+    This is a test!
+  version: 1.4.0
+paths:
+  /auth:
+    post:
+      operationId: authPost
+      tags:
+        - auth
+      summary: Authenticate credentials and retrieve an access token.
+      description: >
+        Consuming username/password or other credential types, this endpoint
+        issues
+
+        access tokens to be provided for the `Authorization` header of other endpoints.
+
+        Access tokens are valid for 5 minutes.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthRequest"
+        required: true
+      responses:
+        "200":
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Bad credentials
+  /auth/authorization_code:
+    post:
+      operationId: authorizationCodePost
+      tags:
+        - auth
+      summary: Retrieve authorization code to use as part of OAuth2 flow
+      description: >
+        Given an authenticated user and OAuth2 `client_id`, `redirect_uri` and `state`, this
+        endpoint generates a authorization code that can be sent to the OAuth counterpart and
+        be validated as it is returned in subsequent oauth token requests.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthorizationCodeRequest"
+        required: true
+      responses:
+        "200":
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthorizationCodeResponse"
+        "400":
+          description: Bad credentials
+  /accounts:
+    post:
+      operationId: accountCreate
+      tags:
+        - accounts
+      summary: Create new account
+      requestBody:
+        content:
+          application/json:
+              schema:
+                $ref: "#/components/schemas/ConfidentifyAccountCreateRequest"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConfidentifyAccountResponse"
+        "400":
+          description: |
+            Bad request
+  /accounts/{account_id}:
+    parameters:
+      - in: path
+        name: account_id
+        required: true
+        schema:
+          type: string
+        description: An account ID or `_` for your own account.
+    get:
+      operationId: accountByIdGet
+      tags:
+        - accounts
+      summary: Get account information
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConfidentifyAccountResponse"
+        "404":
+          description: |
+            Not found
+
+            The account was not found
+    post:
+      operationId: accountByIdUpdate
+      tags:
+        - accounts
+      summary: Update account information
+      requestBody:
+        content:
+          application/json:
+              schema:
+                $ref: "#/components/schemas/ConfidentifyAccountUpdateRequest"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConfidentifyAccountResponse"
+        "404":
+          description: |
+            Not found
+
+            The account was not found
+  /accounts/{account_id}/users/{username}:
+    parameters:
+      - in: path
+        name: account_id
+        required: true
+        schema:
+          type: string
+        description: An account ID or `_` for your own account.
+      - in: path
+        name: username
+        required: true
+        schema:
+          type: string
+        description: A username or `_` for your own username.
+    get:
+      operationId: userByIdGet
+      tags:
+        - accounts
+      summary: Get user information
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConfidentifyUserResponse"
+        "404":
+          description: |
+            Not found
+
+            The user was not found
+    post:
+      operationId: userByIdUpdate
+      tags:
+        - accounts
+      summary: Update user information
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConfidentifyUserUpdateRequest"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConfidentifyUserResponse"
+        "404":
+          description: |
+            Not found
+
+            The user was not found
+  /identify:
+    post:
+      operationId: identifyPost
+      tags:
+        - process
+      summary: Process text to identify contact data.
+      description: >
+        Analyzes unstructured text in order to identify contact data embedded within signatures, sentences, greetings.
+
+        Features of the service include:
+
+        * Resolve person names.
+        
+        * Resolve organization names.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IdentifyRequest"
+        required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdentifyResponse"
+        "400":
+          description: Bad request
+  /person_name:
+    post:
+      operationId: personNamePost
+      tags:
+        - process
+      summary: Process person names
+      description: >
+        Processes person names and provides understanding and correction to how
+        people are addressed.
+
+        Features of the service include:
+
+        * Parsing into discrete name parts like given name, middle name, family name etc.
+
+        * Removal of non-name elements like salutations or titles.
+
+        * Capitalization of name parts.
+
+        * Identification and suggestion of possible nicknames.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PersonNameRequest"
+        required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PersonNameResponse"
+        "400":
+          description: Bad request
+  /organization_name:
+    post:
+      operationId: organizationNamePost
+      tags:
+        - process
+      summary: Process organization names
+      description: >
+        Processes organization names and provides understanding and correction to how
+        the entity is addressed.
+
+        Features of the service include:
+
+        * Identification of company legal types such as 'Corp', 'Ltd' and 'GmbH'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrganizationNameRequest"
+        required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationNameResponse"
+        "400":
+          description: Bad request
+  /email:
+    post:
+      operationId: emailPost
+      tags:
+        - process
+      summary: Process email addresses
+      description: >
+        Processes email addresses. Use the service to increase deliverability.
+
+        Features of the service include:
+
+        * Validates syntax and parses emails into discrete parts.
+
+        * Corrects common misspellings and obfuscations made to make email addresses non-discoverable online.
+
+        * Identifies disposable email addresses.
+
+        * Identifies generic/non-personal email addresses.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmailRequest"
+        required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmailResponse"
+        "400":
+          description: Bad request
+  /phone:
+    post:
+      operationId: phonePost
+      tags:
+        - process
+      summary: Process phone numbers
+      description: >
+        Processes phone number. Use the service to increase callability.
+
+        Features of the service include:
+
+        * Validates syntax and provides uniform formatting of phone numbers to increase understandability.
+
+        * Parses phone numbers internationally, with support for vanity numbers, extension numbers and more.
+
+        * Uses phone number ranges from International Telecommunications Union (ITU) to validate whether a phone number is possible or not.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PhoneRequest"
+        required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PhoneResponse"
+        "400":
+          description: Bad request
+  "/datasets":
+    get:
+      operationId: datasetsGet
+      tags:
+        - datasets
+      summary: Get available datasets
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DatasetListResponse"
+    post:
+      operationId: datasetsPost
+      tags:
+        - datasets
+      summary: Create dataset
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DatasetCreateRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DatasetCreateResponse"
+        "400":
+          description: |
+            Bad request
+
+            Typically because a required property was missing or
+            the `schema` could not be parsed
+  "/datasets/{dataset_id}":
+    parameters:
+      - in: path
+        name: dataset_id
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: datasetByIdGet
+      tags:
+        - datasets
+      summary: Get dataset information
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Dataset_All"
+        "404":
+          description: |
+            Not found
+
+            The dataset was not found
+    post:
+      operationId: datasetByIdPost
+      tags:
+        - datasets
+      summary: Update dataset
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DatasetUpdateRequest"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Dataset_All"
+        "404":
+          description: |
+            Not found
+
+            The dataset was not found
+    delete:
+      operationId: datasetByIdDelete
+      tags:
+        - datasets
+      summary: Delete dataset
+      responses:
+        "200":
+          description: Success
+        "404":
+          description: |
+            Not found
+
+            The dataset was not found
+  "/datasets/{dataset_id}/records":
+    parameters:
+      - in: path
+        name: dataset_id
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: recordsGet
+      tags:
+        - datasets
+      summary: Query records
+      parameters:
+        - in: query
+          name: page[size]
+          description: The page size for the response data
+          required: false
+          schema:
+            type: integer
+            maximum: 200
+            default: 100
+            minimum: 1
+        - in: query
+          name: page[after]
+          description: A cursor ID to provide for getting the next page of data.
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: filter_ids
+          description:
+            A comma-separated list (max 50 items) of IDs to fetch.
+            Using this parameter will disable result paging, so `page[after]` and `page[size]` will have no effect.
+          required: false
+          schema:
+            type: string
+          example: 0naTEBSkKteNnHojEjHEWlLHJr7XScU0,33TKF30jWTTlj21Fro1gkr4kh9fVRleY,361uWCIJH0CIEV6OACRc3r6fkraqU6Iv
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecordsQueryResponse"
+        "404":
+          description: |
+            Not found
+
+            The dataset was not found
+    post:
+      operationId: recordsPost
+      tags:
+        - datasets
+      summary: Upload records
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecordsUploadRequest"
+        required: true
+      responses:
+        "202":
+          description: |
+            Accepted
+
+            Records will be indexed asynchronously
+        "400":
+          description: |
+            Bad request
+
+            Typically because one or more records did not conform to
+            the `schema` of the dataset
+        "404":
+          description: |
+            Not found
+
+            The dataset was not found
+  "/datasets/{dataset_id}/records/{record_id}":
+    parameters:
+      - in: path
+        name: dataset_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: record_id
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: datasetRecordByIdGet
+      tags:
+        - datasets
+      summary: Get dataset record information
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DatasetRecord_All"
+        "404":
+          description: |
+            Not found
+
+            The dataset or record was not found
+    delete:
+      operationId: datasetRecordByIdDelete
+      tags:
+        - datasets
+      summary: Delete dataset record
+      responses:
+        "200":
+          description: Success
+        "404":
+          description: |
+            Not found
+
+            The dataset or record was not found
+  "/datasets/{dataset_id}/ingest_file":
+    parameters:
+      - in: path
+        name: dataset_id
+        required: true
+        schema:
+          type: string
+    post:
+      operationId: ingestFilePost
+      tags:
+        - datasets
+      summary: Initiate ingestion of data from file upload.
+      description: |
+        Using this endpoint you can initiate data ingestion based on file upload. This endpoint
+        does not accept the actual file for processing, but will validate the request and provide
+        a presigned URL with which the client can continue.
+
+        The uploaded file will be handled according to the `file_type` provided in the request.
+
+        In the response of this request, a upload file URL will be provided. The client is expected
+        to `PUT` the file contents towards this URL. Once the file has been uploaded, it will be handled
+        asynchronously.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IngestFileRequest"
+        required: true
+      responses:
+        "200":
+          description: |
+            File ingestion staged - upload URL provided.
+              responses:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IngestFileResponse"
+  "/datasets/{dataset_id}/documents":
+    parameters:
+      - in: path
+        name: dataset_id
+        required: true
+        schema:
+          type: string
+    post:
+      operationId: ingestDocumentsPost
+      tags:
+        - datasets
+      summary: Initiate ingestion of data from a list of documents.
+      description: |
+        Using this endpoint you can initiate data ingestion based on text documents.
+        
+        Each document will be processed using the `identify` service and the resolved/identified
+        entities will then be added to the dataset as records.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IngestDocumentsRequest"
+        required: true
+      responses:
+        "202":
+          description: |
+            Accepted
+
+            Records will be added and indexed asynchronously
+  "/match/person":
+    post:
+      operationId: matchPersonPost
+      tags:
+        - matching
+      summary: Search for matching person records in one or more datasets.
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Bad request
+        "404":
+          description: Not found
+  "/match/jobs":
+    post:
+      operationId: matchJobsPost
+      tags:
+        - matching
+      summary: Create match job
+      description: |
+        Creates and starts a job that will detect matching records
+        between two datasets, aka. "cross-dataset matching".
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MatchJobCreateRequest"
+        required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MatchJob_All"
+        "400":
+          description: Bad request
+    get:
+      operationId: matchJobsGet
+      tags:
+        - matching
+      summary: Get matching jobs
+      parameters:
+        - in: query
+          name: filter_dataset_id
+          description: The ID of a dataset to filter jobs by.
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: page[size]
+          description: The page size for the response data
+          required: false
+          schema:
+            type: integer
+            maximum: 200
+            default: 100
+            minimum: 1
+        - in: query
+          name: page[after]
+          description: A cursor ID to provide for getting the next page of data.
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MatchJobsQueryResponse"
+  "/match/jobs/{job_id}":
+    parameters:
+      - in: path
+        name: job_id
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: matchJobByIdGet
+      tags:
+        - matching
+      summary: Get match job information
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MatchJob_All"
+        "404":
+          description: Not found
+    post:
+      operationId: matchJobByIdPost
+      tags:
+        - matching
+      summary: Update match job
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MatchJobUpdateRequest"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MatchJob_All"
+        "404":
+          description: Not found
+    delete:
+      operationId: matchJobByIdDelete
+      tags:
+        - matching
+      summary: Delete match job
+      responses:
+        "200":
+          description: Success
+  "/match/jobs/{job_id}/pairs":
+    parameters:
+      - in: path
+        name: job_id
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: matchJobByIdPairsGet
+      tags:
+        - matching
+      summary: Get record pairs found by match job
+      parameters:
+        - in: query
+          name: filter_verdict
+          description: The record pair's `verdict` value to filter by.
+          required: false
+          schema:
+            $ref: "#/components/schemas/MatchVerdict"
+        - in: query
+          name: filter_record_id
+          description: The ID of one of the records in a pair to filter by.
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: page[size]
+          description: The page size for the response data
+          required: false
+          schema:
+            type: integer
+            maximum: 200
+            default: 100
+            minimum: 1
+        - in: query
+          name: page[after]
+          description: A cursor ID to provide for getting the next page of data.
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MatchJobPairsQueryResponse"
+        "404":
+          description: Not found
+  "/dedup/jobs":
+    get:
+      operationId: dedupJobsGet
+      tags:
+        - matching
+      summary: Get deduplication jobs
+      parameters:
+        - in: query
+          name: filter_dataset_id
+          description: The ID of a dataset to filter jobs by.
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: page[size]
+          description: The page size for the response data
+          required: false
+          schema:
+            type: integer
+            maximum: 200
+            default: 100
+            minimum: 1
+        - in: query
+          name: page[after]
+          description: A cursor ID to provide for getting the next page of data.
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DedupJobsQueryResponse"
+    post:
+      operationId: dedupJobsPost
+      tags:
+        - matching
+      summary: Create deduplication job
+      description: |
+        Creates and starts a job that will detect duplicates within a dataset,
+        aka. "Deduplication".
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DedupJobCreateRequest"
+        required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DedupJob_All"
+        "400":
+          description: Bad request
+  "/dedup/jobs/{job_id}":
+    parameters:
+      - in: path
+        name: job_id
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: dedupJobByIdGet
+      tags:
+        - matching
+      summary: Get deduplication job information
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DedupJob_All"
+        "404":
+          description: Not found
+    post:
+      operationId: dedupJobByIdPost
+      tags:
+        - matching
+      summary: Update deduplication job
+      requestBody:
+        content:
+          application/json:
+            schema:
+                $ref: "#/components/schemas/MatchJobUpdateRequest"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DedupJob_All"
+        "404":
+          description: Not found
+    delete:
+      operationId: dedupJobByIdDelete
+      tags:
+        - matching
+      summary: Delete deduplication job
+      responses:
+        "200":
+          description: Success
+  "/dedup/jobs/{job_id}/pairs":
+    parameters:
+      - in: path
+        name: job_id
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: dedupJobByIdPairsGet
+      tags:
+        - matching
+      summary: Get record pairs found by deduplication job
+      parameters:
+        - in: query
+          name: filter_verdict
+          description: The record pair's `verdict` value to filter by.
+          required: false
+          schema:
+            $ref: "#/components/schemas/MatchVerdict"
+        - in: query
+          name: filter_record_id
+          description: The ID of one of the records in a pair to filter by.
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: page[size]
+          description: The page size for the response data
+          required: false
+          schema:
+            type: integer
+            maximum: 200
+            default: 100
+            minimum: 1
+        - in: query
+          name: page[after]
+          description: A cursor ID to provide for getting the next page of data.
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MatchJobPairsQueryResponse"
+        "404":
+          description: Not found
+servers:
+  - url: https://api.confidentify.com
+security:
+  - bearerAuth: []
+  - oAuth2ClientCredentials: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT 
+    oAuth2ClientCredentials:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: /auth
+          scopes: {}
+  schemas:
+    AuthRequest:
+      type: object
+      properties:
+        grant_type:
+          type: string
+          description: The type of grant provided, if the endpoint is used as per the OAuth2 protocol.
+          enum:
+            - password
+            - authorization_code
+            - refresh_token
+            - google_access_token
+        username:
+          type: string
+          description: The username of the user, usually an email address.
+          example: user@company.com
+        password:
+          type: string
+          description: Password to use for authentication.
+          example: secret
+        refresh_token:
+          type: string
+          description: A previously issued `refresh_token` value to provide for authentication.
+          example: secret
+        google_access_token:
+          type: string
+          description: Access token issued by Google to use for authentication.
+          example: par143pqodw2h4k2jl42n253ljn5dd35as3
+        client_id:
+          type: string
+          description: Client identifier as per the OAuth2 protocol.
+        client_secret:
+          type: string
+          description: Client secret as per the OAuth2 protocol.
+        redirect_uri:
+          type: string
+          format: url
+          description: Client redirect_uri as per the OAuth2 protocol.
+        code:
+          type: string
+          description: |
+            The authorization code, if `grant_type` is `authorization_code`.
+            Use the `/auth/authorization_code` endpoint to generate this code and the
+            URL which acts as a OAuth2 handshake for it.
+        expire_after_seconds:
+          type: integer
+          description: |
+            Optional property specifying the number of seconds that the
+            returned token should be valid for.
+          minimum: 60
+          maximum: 1200
+          default: 300
+        service_grants:
+          type: array
+          description: |
+            An optional array of service names to grant access to.
+            Use this to generate access tokens with limited capabilities.
+          items:
+            type: string
+          example:
+            - /person_name
+            - /email
+            - /datasets/kFDs14IO313n1l
+    AuthResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: >
+            An access token to be provided in requests to the API via the
+            `Authorization` HTTP header.
+
+            The header value should prefixed with `Bearer` and a single space, so: `Bearer `.
+          example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2FwaS5jb25maWRlbnRpZnkuY29tIiwic3ViIjoia2FzcGVyc29yIiwiYWNjb3VudF9pZCI6ImlnZDhNQTIwYXBCYXRJRmUiLCJpYXQiOjE1NzE4NTk0NzAsImV4cCI6MTU3MTg1OTc3MCwic3ZjcyI6WyIvaGVsbG9fb3BlbmFwaV9wZW9wbGUiXX0.rjFxuVpxdzLpWLXujaSOVpUmfwtCNHmNubMlZoblwY4
+        refresh_token:
+          type: string
+          description: >
+            A refresh token that can be used to get new access tokens for longer periods of time (up to 7 days).
+            
+            For long-running sessions and clients that want to keep the connection to Confidentify open,
+            we recommend storing refresh tokens instead of other types of credentials.
+        registered:
+          type: boolean
+          description: >
+            Indicates whether the user has a registered account or not.
+            If authentication was able to validate user credentials but an
+            account has not been registered for this user, the user will be able to
+            call a limited set of endpoints in order to register an account.
+    AuthorizationCodeRequest:
+      type: object
+      properties:
+        client_id:
+          type: string
+          description: The OAuth2 counterpart's identifier.
+        redirect_uri:
+          type: string
+          description: Base redirect URL provided by the counterpart.
+        state:
+          type: string
+          description: State variable generated by the OAuth2 counterpart.
+    AuthorizationCodeResponse:
+      type: object
+      properties:
+        authorization_code:
+          type: string
+          description: The generated authorization code.
+        redirect_uri:
+          type: string
+          format: url
+          description: The completed URL to take the client to.
+    ConfidentifyAccountCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: |
+            The name of the account, typically a company name.
+        image_url:
+          type: string
+          description: Optional URL to an image representing the account.
+        website_url:
+          type: string
+          description: Optional URL to the account's website.
+        account_owner_username:
+          type: string
+          description: |
+            The username of the account owner user. Note that this field can only be
+            specified by administrators.
+    ConfidentifyAccountUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: |
+            The name of the account, typically a company name.
+        image_url:
+          type: string
+          description: Optional URL to an image representing the account.
+        website_url:
+          type: string
+          description: Optional URL to the account's website.
+    ConfidentifyAccountResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: |
+            A unique ID for the account.
+        account_owner_username:
+          type: string
+          description: The username of the account owner user.
+        name:
+          type: string
+          description: |
+            The name of the account, typically a company name.
+        image_url:
+          type: string
+          description: Optional URL to an image representing the account.
+        website_url:
+          type: string
+          description: Optional URL to the account's website.
+    ConfidentifyUserUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The user's name
+        image_url:
+          type: string
+          description: The user's profile image
+        email:
+          type: string
+          description: The user's email
+        password:
+          type: string
+          description: A new password for the user
+    ConfidentifyUserResponse:
+      type: object
+      properties:
+        username:
+          type: string
+        account_id:
+          type: string
+        login_count:
+          type: integer
+          description: A running approximate count of how many times the user has logged in.
+        login_at:
+          type: string
+          format: date-time
+          description: The time of the user's last login
+        name:
+          type: string
+          description: The user's name
+        image_url:
+          type: string
+          description: The user's profile image
+        email:
+          type: string
+          description: The user's email
+    ProcessorOutcome:
+      type: object
+      properties:
+        verdict:
+          $ref: "#/components/schemas/ProcessorVerdict"
+        info:
+          description: A list of informational entries about the processed entity.
+          type: array
+          items:
+            type: string
+          example:
+            - domain entry validated
+            - text case formatted
+        warn:
+          description: A list of warnings about the processed entity.
+          type: array
+          items:
+            type: string
+          example:
+            - generic mailbox
+    MatchVerdict:
+      type: string
+      description: Defines the decision-making verdict resulting from a record matching operation.
+      enum:
+        - matched
+        - questionable
+    ProcessorVerdict:
+      type: string
+      description: Defines the decision-making verdict from processing a record.
+      enum:
+        - corrected
+        - valid
+        - questionable
+        - invalid
+        - error
+    IdentifyRequest:
+      type: object
+      properties:
+        records:
+          type: array
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/IdentifyRequestRecord"
+    IdentifyResponse:
+      type: object
+      properties:
+        records:
+          type: array
+          items:
+            $ref: "#/components/schemas/IdentifyResponseRecord"
+    IdentifyRequestRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          example: By7P02fmNy
+        text:
+          type: string
+          example: by John Smith, Director at Acme Limited
+    IdentifyResponseRecord:
+      properties:
+        id:
+          type: string
+          example: By7P02fmNy
+        entities:
+          type: array
+          items:
+            $ref: "#/components/schemas/IdentifyResponseRecordEntity"
+          example:
+          - entity_type: person_name
+            text: John Smith
+          - entity_type: organization_name
+            text: Acme Limited
+    IdentifyResponseRecordEntity:
+      properties:
+        entity_type:
+          type: string
+          enum:
+          - person_name
+          - organization_name
+        text:
+          type: string
+          description: The text string that was identified to represent the entity
+    PersonNameRequest:
+      type: object
+      properties:
+        records:
+          type: array
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/PersonNameRequestRecord"
+    PersonNameRequestRecord:
+      oneOf:
+        - $ref: "#/components/schemas/PersonNameFullNameRequestRecord"
+        - $ref: "#/components/schemas/PersonNameDetailsRequestRecord"
+    PersonNameDetailsRequestRecord:
+      type: object
+      description: Request format used to process a name in parts
+      properties:
+        id:
+          type: string
+          example: By7P02fmNy
+        given:
+          type: string
+          description: The given name (aka. first name in western naming culture)
+          example: John
+        middle:
+          type: string
+          description: The middle name, if available
+          example: Randal
+        family:
+          type: string
+          description: The family name (aka. last name of surname in western naming culture)
+          example: van Gogh
+        suffix:
+          type: string
+          description: The name suffix, if available
+          example: Sr
+    PersonNameFullNameRequestRecord:
+      type: object
+      description: Request format used to process a full name
+      properties:
+        id:
+          type: string
+          example: By7P02fmNy
+        name:
+          type: string
+          example: John Randal van Gogh
+    PersonNameResponse:
+      type: object
+      properties:
+        records:
+          type: array
+          items:
+            $ref: "#/components/schemas/PersonNameResponseRecord"
+    PersonNameResponseRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          example: By7P02fmNy
+        entities:
+          type: array
+          items:
+            $ref: "#/components/schemas/PersonNameResponseRecordEntity"
+        outcome:
+          $ref: "#/components/schemas/ProcessorOutcome"
+    PersonNameResponseRecordEntity:
+      allOf:
+        - $ref: "#/components/schemas/PersonName_All"
+        - type: object
+          properties:
+            name_formatted:
+              type: string
+              example: Bill Randal van Gogh
+    PersonName_All:
+      allOf:
+        - $ref: "#/components/schemas/PersonName_Base"
+        - type: object
+          properties:
+            family_prefix:
+              type: string
+              example: van
+            family_main:
+              type: string
+              example: Gogh
+            nicknames:
+              type: array
+              items:
+                type: string
+              example:
+                - Billy
+                - Will
+                - William
+    PersonName_Base:
+      type: object
+      properties:
+        given:
+          type: string
+          example: Bill
+        middle:
+          type: string
+          example: Randal
+        family:
+          type: string
+          example: van Gogh
+        suffix:
+          type: string
+          example: Senior
+    OrganizationNameRequest:
+      type: object
+      properties:
+        records:
+          type: array
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/OrganizationNameRequestRecord"
+    OrganizationNameRequestRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          example: By7P02fmNy
+        name:
+          type: string
+          example: Go-zhip Shipping GmbH
+    OrganizationNameResponse:
+      type: object
+      properties:
+        records:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrganizationNameResponseRecord"
+    OrganizationNameResponseRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          example: By7P02fmNy
+        organization_name:
+          type: string
+          example: Go-zhip Shipping
+        organization_type:
+          type: string
+          example: GmbH
+        outcome:
+          $ref: "#/components/schemas/ProcessorOutcome"
+    EmailRequest:
+      type: object
+      properties:
+        records:
+          type: array
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/EmailRequestRecord"
+    EmailRequestRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          example: By7P02fmNx
+        email:
+          type: string
+          example: info+sales[AT]Mail.Domain.com
+    EmailResponse:
+      type: object
+      properties:
+        records:
+          type: array
+          items:
+            $ref: "#/components/schemas/EmailResponseRecord"
+    EmailResponseRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          example: By7P02fmNx
+        email_formatted:
+          type: string
+          example: info+sales@mail.domain.com
+        email_simplified:
+          type: string
+          description: |
+            Simplified variant of the email address. This format strips
+            out characters or parts of the email that may be technically 
+            irrelevant depending on the email domain's addressing rules.
+
+            We do not recommend using the simplified email address for
+            sending, but it may be beneficial for certain cases such as
+            identifying duplicates.
+          example: info@mail.domain.com
+        username:
+          type: string
+          example: info
+        label:
+          type: string
+          example: sales
+        subdomain:
+          type: string
+          example: mail
+        domain:
+          type: string
+          example: domain
+        tld:
+          type: string
+          example: com
+        email_suggested:
+          type: string
+          description: |
+            When available, a suggested corrected email address.
+          example: info+sales@gmail.com
+        outcome:
+          $ref: "#/components/schemas/ProcessorOutcome"
+    PhoneRequest:
+      type: object
+      properties:
+        records:
+          type: array
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/PhoneRequestRecord"
+    PhoneRequestRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          example: By7P02fmNz
+        country:
+          type: string
+          description: 2-letter country code
+          maxLength: 2
+          example: GB
+        phone:
+          type: string
+          example: 2083661177
+    PhoneResponse:
+      type: object
+      properties:
+        records:
+          type: array
+          items:
+            $ref: "#/components/schemas/PhoneResponseRecord"
+    PhoneResponseRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          example: By7P02fmNz
+        phone_E164:
+          type: string
+          example: 442083661177
+        phone_international:
+          type: string
+          example: +44 20 8366 1177
+        phone_country_code:
+          type: integer
+          example: 44
+        phone_national:
+          type: string
+          example: 020 8366 1177
+        outcome:
+          $ref: "#/components/schemas/PhoneResponseRecordProcessorOutcome"
+    PhoneResponseRecordProcessorOutcome:
+      allOf:
+        - $ref: "#/components/schemas/ProcessorOutcome"
+        - type: object
+          properties:
+            is_parsed:
+              type: boolean
+            is_possible:
+              type: boolean
+    DatasetSchema:
+      type: object
+      properties:
+        properties:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/DatasetSchemaProperty"
+          example:
+            customer_no:
+              type: meta_external_id
+            contact_name:
+              type: person_name
+            phone_home:
+              type: phone
+            phone_mobile:
+              type: phone
+            emails:
+              type: array
+              items:
+                type: email
+    DatasetSchemaProperty:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/DatasetSchemaPropertyType"
+        items:
+          type: object
+          properties:
+            type:
+              $ref: "#/components/schemas/DatasetSchemaPropertyType"
+    DatasetSchemaPropertyType:
+      type: string
+      enum:
+        - string
+        - number
+        - datetime
+        - url
+        - array
+        - person_name
+        - person_name_given
+        - person_name_middle
+        - person_name_family
+        - person_name_suffix
+        - organization_name
+        - email
+        - phone
+        - job_title
+        - money_amount
+        - country
+        - language
+        - address_state
+        - address_postal_code
+        - address_city
+        - address_line
+        - birth_date
+        - gender
+        - national_id
+        - document_subject
+        - document_body
+        - document_sender
+        - document_receiver
+        - meta_external_id
+      description: >
+        Property types in a dataset schema:
+         * `string` - A generic text string.
+         * `number` - A generic number.
+         * `array` - An array of items. The `items` property must also be provided.
+            Multiple layers of arrays are not supported.
+         * `person_name` - The name of a person.
+            Values for this property type can either be provided as a string containing
+            the full name, or can be provided as an object of the `PersonName_Base` type.
+         * `job_title` - A job title. Values for this property must be provided as strings.
+         * `organization_name` - The name of an organization.
+            Values for this property must be provided as strings.
+         * `email` - An email address.
+         * `phone` - A phone number.
+         * `country` - A country name or code. The 2-letter country code is preferred.
+         * `birth_date` - A birth date, or alternatively just a birth year.
+            Values for this property must be provided as strings, preferably in the
+            `yyyy-MM-dd` date format (but other common date formats will be attempted too).
+         * `national_id` - A national (or otherwise official) identification number.
+            This could be used for instance of passport numbers or driver's license numbers.
+            Values for this property can be provided as a string containing the full
+            national ID, or as an object containing a `country` and a `id` property.
+         * `gender` - The gender of a person. Values of this property can conform to any
+            gender encoding topology that the client wishes to use (e.g. `M`, `F`, `T`, `U`).
+         * `meta_external_id` - The record's ID in an external system.
+    DatasetListResponse:
+      type: object
+      properties:
+        datasets_account:
+          type: array
+          description: |
+            A list of datasets owned by the account
+          items:
+            $ref: "#/components/schemas/Dataset_ListItem"
+        datasets_shared:
+          type: array
+          description: |
+            A list  of datasets shared with the account.
+            Shared datasets are only available for read/matching-operations,
+            not for updates.
+          items:
+            $ref: "#/components/schemas/Dataset_ListItem"
+    DatasetCreateRequest:
+      allOf:
+        - $ref: "#/components/schemas/Dataset_Base"
+    DatasetCreateResponse:
+      allOf:
+        - $ref: "#/components/schemas/Dataset_All"
+    DatasetUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: New name for the dataset
+    RecordsUploadRequest:
+      type: object
+      properties:
+        record_source:
+          type: string
+          maxLength: 100
+          description: |
+            Defines a string which identifies the source of the records.
+        records:
+          type: array
+          description: |
+            The records to upload, each represented as an object with keys
+            matching the properties defined in the dataset's `schema`.
+
+            Properties defined in the `schema` can be omitted which will
+            correspond to `null` values.
+            Records cannot contain other properties than those defined
+            in the `schema`.
+          maxItems: 200
+          items:
+            type: object
+          example:
+            - customer_no: 42039423
+              contact_name: John "Jay" Doe
+              phone_home: +1 425 691 6935
+              phone_mobile: +1 425 691 6935
+              emails:
+                - john.doe@company.com
+                - jay@gmail.com
+            - customer_no: 43204923
+              contact_name:
+                given_name: Kasper
+                family: SÃ¸rensen
+                family_main: SÃ¸rensen
+              phone_mobile: +45 9999 9999
+              emails: []
+    MatchJobsQueryResponse:
+      type: object
+      properties:
+        jobs:
+          type: array
+          description: |
+            The jobs retrieved from the query
+          maxItems: 200
+          items:
+            $ref: "#/components/schemas/MatchJob_Base"
+        next_page:
+          $ref: "#/components/schemas/NextPageInformation"
+    DedupJobsQueryResponse:
+      type: object
+      properties:
+        jobs:
+          type: array
+          description: |
+            The jobs retrieved from the query.
+          maxItems: 200
+          items:
+            $ref: "#/components/schemas/DedupJob_Base"
+        next_page:
+          $ref: "#/components/schemas/NextPageInformation"
+    MatchJobPairsQueryResponse:
+      type: object
+      properties:
+        pairs:
+          type: array
+          description: |
+            The record pairs retrieved from the query.
+          maxItems: 200
+          items:
+            $ref: "#/components/schemas/MatchedPair"
+        next_page:
+          $ref: "#/components/schemas/NextPageInformation"
+    MatchedPair:
+      type: object
+      properties:
+        record1:
+          $ref: "#/components/schemas/MatchedRecord"
+        record2:
+          $ref: "#/components/schemas/MatchedRecord"
+        verdict:
+          $ref: "#/components/schemas/MatchVerdict"
+        scores:
+          type: object
+          description: Detailed score values for information
+          example:
+            overall: 0.97
+            person_name: 0.93
+            email: 1.0
+    MatchedRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The record ID.
+        dataset_id:
+          type: string
+          description: The ID of the dataset that contains the record.
+    NextPageInformation:
+      type: object
+      properties:
+        url:
+          type: string
+          format: url
+          description: Provides a link to the next page of data
+        param_page_size:
+          type: integer
+          description: Provides the raw value for the `page[size]` parameter, for clients that prefer to build the paging URL themselves.
+        param_page_after:
+          type: string
+          description: Provides the raw value for the `page[after]` parameter, for clients that prefer to build the paging URL themselves.
+    RecordsQueryResponse:
+      type: object
+      properties:
+        records:
+          type: array
+          description: |
+            The records retrieved from the query.
+          maxItems: 200
+          items:
+            $ref: "#/components/schemas/DatasetRecord_Base"
+        next_page:
+          $ref: "#/components/schemas/NextPageInformation"
+    MatchJobCreateRequest:
+      type: object
+      properties:
+        datasets:
+          type: array
+          description: The IDs of the datasets to match
+          items:
+            type: string
+          minItems: 2
+          maxItems: 2
+          example:
+          - kFDs14IO313n1l
+          - l13pdo123nvva2
+        name:
+          type: string
+          description: |
+            An optional name for the job
+    DedupJobCreateRequest:
+      type: object
+      properties:
+        dataset_id:
+          type: string
+          description: The ID of the dataset to target with the deduplication job.
+          example: kFDs14IO313n1l
+        name:
+          type: string
+          description: |
+            An optional name for the job
+    MatchJobUpdateRequest:
+      properties:
+        name:
+          type: string
+          description: |
+            New name for the job
+    MatchJob_Base:
+      properties:
+        id:
+          type: string
+          description: |
+            A unique ID for the match job
+        name:
+          type: string
+          description: |
+            An optional name for the job
+        running:
+          type: boolean
+          description: Determines if the job is currently running.
+        created_at:
+          type: string
+          format: date-time
+          description: The date and time of job creation.
+        datasets:
+          type: array
+          items:
+            type: string
+            description: Dataset ID
+        results:
+          type: object
+          description: Provides the results of the job. If the job is still running, there may still be preliminary results available.
+          properties:
+            pairs_matched:
+              type: integer
+              description: Number of record pairs matched with a 'matched' verdict.
+              example: 1860
+            pairs_questionable:
+              type: integer
+              description: Number of record pairs matched with a 'questionable' verdict.
+              example: 808
+    MatchJob_All:
+      allOf:
+        - $ref: "#/components/schemas/MatchJob_Base"
+        - type: object
+          properties:
+            created_by:
+              type: string
+              description: The username of the user who created the job
+            started_at:
+              type: string
+              format: date-time
+              description: The date and time of job starting.
+            finished_at:
+              type: string
+              format: date-time
+              description: The date and time of job finishing.
+            phase:
+              type: string
+              description: A description of the latest known job state.
+            progress:
+              $ref: "#/components/schemas/MatchJobProgress"
+    MatchJobProgress:
+      type: object
+      description: Provides progress data for the job.
+      properties:
+        records_indexed:
+          type: integer
+          description: The number of records in the dataset being processed.
+          example: 5115
+        index_collisions_identified:
+          type: integer
+          description: |
+            The amount of 'index collisions' identified in the dataset. This indicates how many overlapping values have been found when initially scanning the
+            dataset's indexed values. Not all index collisions carry the same weight when it comes to determining the overall match, but it can provide an
+            early indication of the size of the deduplication job.
+          example: 2187
+        index_collisions_processed:
+          type: integer
+          description: |
+            Provides the amount of index collisions that have been processed thus far.
+          example: 1851
+        pairs_identified:
+          type: integer
+          description: |
+            The amount of record pairs that have been identified as candidates for matching. Record pairs are selected based on index collisions.
+          example: 19559
+        pairs_processed:
+          type: integer
+          description: |
+            The amount of record pairs that have been processed / matched. The outcome of this will be that the `result` fields `pairs_matched` or
+            `pairs_questionable` will be incremented, or the pair will be deemed not a match and therefore not saved as a result.
+          example: 11254
+    DedupJob_Base:
+      properties:
+        id:
+          type: string
+          description: |
+            A unique ID for the deduplication job
+        name:
+          type: string
+          description: |
+            An optional name for the job
+        dataset_id:
+          type: string
+          description: The ID of the dataset that the deduplication job is targeting.
+          example: kFDs14IO313n1l
+        running:
+          type: boolean
+          description: Determines if the job is currently running.
+        created_at:
+          type: string
+          format: date-time
+          description: The date and time of job creation.
+        results:
+          type: object
+          description: Provides the results of the job. If the job is still running, there may still be preliminary results available.
+          properties:
+            pairs_matched:
+              type: integer
+              description: Number of record pairs matched with a 'matched' verdict.
+              example: 1860
+            pairs_questionable:
+              type: integer
+              description: Number of record pairs matched with a 'questionable' verdict.
+              example: 808
+    DedupJob_All:
+      allOf:
+        - $ref: "#/components/schemas/DedupJob_Base"
+        - type: object
+          properties:
+            created_by:
+              type: string
+              description: The username of the user who created the job
+            started_at:
+              type: string
+              format: date-time
+              description: The date and time of job starting.
+            finished_at:
+              type: string
+              format: date-time
+              description: The date and time of job finishing.
+            phase:
+              type: string
+              description: A description of the latest known job state.
+            progress:
+              $ref: "#/components/schemas/MatchJobProgress"
+    DatasetRecord_Base:
+      properties:
+        id:
+          type: string
+          description: |
+            A unique ID for the record
+        entity:
+          type: object
+          description: |
+            The record's data with keys matching the properties defined in the dataset's `schema`
+        record_source:
+          type: string
+          description: |
+            A string which identifies the source of the record.
+    DatasetRecord_All:
+      allOf:
+        - $ref: "#/components/schemas/DatasetRecord_Base"
+        - type: object
+          properties:
+            created_at:
+              type: string
+              format: date-time
+              description: The time of creation of the record
+    Dataset_Base:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the dataset
+        schema:
+          $ref: "#/components/schemas/DatasetSchema"
+    Dataset_ListItem:
+      allOf:
+        - $ref: "#/components/schemas/Dataset_Base"
+        - type: object
+          properties:
+            id:
+              type: string
+              description: The unique ID of the dataset
+              example: kFDs14IO313n1l
+            href:
+              type: string
+              description: The HTTP path to the dataset
+              example: /datasets/kFDs14IO313n1l
+    Dataset_All:
+      allOf:
+        - $ref: "#/components/schemas/Dataset_ListItem"
+        - type: object
+          properties:
+            stats:
+              $ref: "#/components/schemas/DatasetStats"
+            created_at:
+              type: string
+              format: date-time
+              description: The time of creation of the dataset
+            created_by:
+              type: string
+              description: The username of the user who created the dataset
+    DatasetStats:
+      type: object
+      properties:
+        files_received:
+          type: integer
+          example: 4
+          description: The amount of files uploaded and received for which processing has started.
+        files_processed:
+          type: integer
+          example: 3
+          description: |
+            The amount of files uploaded that has been fully processed.
+
+            Note that there may be a delay between submitting files and having them processed.
+            If this number is less than `files_received`, it means that files are currently queued for processing.
+        documents_received:
+          type: integer
+          example: 683
+          description: The amount of documents that have been received for which processing has started.
+        documents_processed:
+          type: integer
+          example: 529
+          description: |
+            The amount of documents that has been fully processed.
+
+            Note that there may be a delay between submitting documents and having them processed.
+            If this number is less than `documents_received`, it means that documents are currently queued for processing.
+        records_inserted:
+          type: integer
+          example: 4000
+          description: |
+            The amount of records that have been inserted into the dataset.
+        records_indexed:
+          type: integer
+          example: 2872
+          description: |
+            The amount of records that have been indexed for matching.
+            
+            Note that there may be a delay between submitting records and having them indexed.
+            If this number is less than `records_inserted`, it means that records are currently queued for indexing.
+        records_per_source:
+          type: object
+          additionalProperties:
+            type: integer
+          example:
+            CRM: 1321
+            ERP: 1021
+            documents: 321
+    IngestDocumentsRequest:
+      type: object
+      properties:
+        record_source:
+          type: string
+          maxLength: 100
+          description: |
+            Defines a string which identifies the source of any records in the documents.
+            This could be the name of the originating document store or system.
+        records:
+          type: array
+          maxItems: 200
+          items:
+            $ref: "#/components/schemas/IdentifyRequestRecord"
+    IngestFileRequest:
+      type: object
+      properties:
+        file_type:
+          type: string
+          enum:
+            - records.csv
+            - documents.zip
+            - document.pdf
+            - document.png
+            - document.jpg
+          description: |
+            Defines the type of file and thus also the type of data ingestion to perform.
+        record_source:
+          type: string
+          maxLength: 100
+          description: |
+            Defines a string which identifies the source of any records in the file.
+            This could be the original filename or the name of the originating data source.
+    IngestFileResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique ID of the file.
+        upload_to:
+          type: object
+          properties:
+            url:
+              type: string
+              description: The URL to upload the file contents to.
+            http_method:
+              type: string
+              example: PUT
+              description: The HTTP method to use when uploading the file contents. This will always be `PUT`.
